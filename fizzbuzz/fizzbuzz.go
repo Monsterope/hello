@@ -5,11 +5,18 @@ import (
 )
 
 func String(n int) string {
-	if n%5 == 0 {
-		return "Buzz"
-	}
+
+	var returnResult string = ""
+
 	if n%3 == 0 {
-		return "Fizz"
+		returnResult = "Fizz"
 	}
-	return strconv.Itoa(n)
+	if n%5 == 0 {
+		returnResult = returnResult + "Buzz"
+	}
+	if n%3 != 0 && n%5 != 0 {
+		returnResult = strconv.Itoa(n)
+	}
+
+	return returnResult
 }
