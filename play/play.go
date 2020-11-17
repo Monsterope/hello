@@ -11,6 +11,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
+	"time"
 )
 
 /* custom type int */
@@ -81,11 +83,119 @@ func main() {
 	// myPrint(4)
 
 	/* defer try catch */
-	catchMe()
+	// catchMe()
+
+	// goroutineEx()
+
+	// gochannelEx()
+
+	// chro()
+
+	// pp()
+
+	// ma()
 
 	// log.Fatal("test")
 	// log.Panic("test")
 
+}
+
+func ma() {
+	slice := []int{1, 2, 3, 4, 5}
+	variadic(slice...)
+}
+
+func variadic(v ...int) {
+	for _, val := range v {
+		fmt.Println(val)
+	}
+}
+
+var str string
+var mux sync.Mutex
+
+func pp() {
+	for i := 0; i < 100; i++ {
+		go writeString("test")
+		go readString()
+	}
+}
+
+func writeString(s string) {
+	mux.Lock()
+	str = s
+	mux.Unlock()
+}
+func readString() string {
+	mux.Lock()
+	defer mux.Unlock()
+	return str
+}
+
+func chro() {
+	ch := make(chan int)
+	chStop := make(chan struct{})
+	go fibocEx(ch, chStop)
+
+	for i := 0; i < 10; i++ {
+		fmt.Println(<-ch)
+	}
+	chStop <- struct{}{}
+	fmt.Println("finish")
+
+}
+
+func fibocEx(ch chan int, chStop <-chan struct{}) {
+	a, b := 0, 1
+	for {
+		select {
+		case ch <- a:
+			a, b = b, a+b
+		case <-chStop:
+			fmt.Println("agreacful")
+			break
+		}
+	}
+
+}
+
+func gochannelEx() {
+	total := 10
+	ch := make(chan int, total)
+	for i := total; i > 0; i-- {
+		ch <- i
+	}
+	close(ch)
+
+	for i := range ch {
+		fmt.Println(i)
+	}
+
+}
+
+var wg = sync.WaitGroup{}
+
+func goroutineEx() {
+	total := 10
+	now := time.Now()
+
+	wg.Add(10)
+	for i := 0; i < total; i++ {
+		go printout(i)
+	}
+	wg.Wait()
+	fmt.Println(time.Now().Sub(now))
+}
+
+func printout(i int) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Println(r)
+		}
+	}()
+	fmt.Println(i)
+	wg.Done()
+	panic("aa")
 }
 
 /* array and slice */
